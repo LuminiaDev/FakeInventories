@@ -3,7 +3,7 @@ plugins {
     id("maven-publish")
 }
 
-group = "me.iwareq.fakeinventories"
+group = "com.luminiadev.fakeinventories"
 version = "1.2.0"
 
 java {
