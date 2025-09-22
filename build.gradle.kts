@@ -3,22 +3,22 @@ plugins {
     id("maven-publish")
 }
 
-group = "me.iwareq.fakeinventories"
-version = "1.1.9-MOT"
+group = "com.luminiadev.fakeinventories"
+version = "1.2.0"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
 repositories {
     mavenCentral()
-    maven("https://repo.lanink.cn/repository/maven-public/")
+    maven("https://repo.luminiadev.com/snapshots")
 }
 
 dependencies {
-    compileOnly("cn.nukkit:Nukkit:MOT-SNAPSHOT")
+    compileOnly("com.koshakmine:Lumi:1.2.0-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
 }

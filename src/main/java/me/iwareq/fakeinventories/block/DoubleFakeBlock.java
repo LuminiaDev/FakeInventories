@@ -16,21 +16,20 @@ public class DoubleFakeBlock extends SingleFakeBlock {
     }
 
     @Override
-    public List<Vector3> getPositions(Player player) {
-        Vector3 blockPosition = player.getPosition().add(this.getOffset(player)).floor();
-        DimensionData dimensionData = player.getLevel().getDimensionData();
-        if (blockPosition.getFloorY() >= dimensionData.getMinHeight() && blockPosition.getFloorY() < dimensionData.getMaxHeight()) {
-            if ((blockPosition.getFloorX() & 1) == 1) {
-                return Arrays.asList(blockPosition, blockPosition.east());
+    public List<Vector3> getPlacePositions(Player player) {
+        Vector3 position = player.getPosition().add(this.getOffset(player)).floor();
+        DimensionData dimension = player.getLevel().getDimensionData();
+        if (position.getFloorY() >= dimension.getMinHeight() && position.getFloorY() < dimension.getMaxHeight()) {
+            if ((position.getFloorX() & 1) == 1) {
+                return Arrays.asList(position, position.east());
             }
-            return Arrays.asList(blockPosition, blockPosition.west());
+            return Arrays.asList(position, position.west());
         }
-
         return Collections.emptyList();
     }
 
     @Override
-    protected Vector3 getOffset(Player player) {
+    public Vector3 getOffset(Player player) {
         Vector3 offset = super.getOffset(player);
         offset.x *= 1.5;
         offset.z *= 1.5;
@@ -39,9 +38,8 @@ public class DoubleFakeBlock extends SingleFakeBlock {
 
     @Override
     protected CompoundTag getBlockEntityDataAt(Vector3 position, String title) {
-        int pairX = (position.getFloorX() & 1) == 1 ? 1 : -1;
         return super.getBlockEntityDataAt(position, title)
-                .putInt("pairx", position.getFloorX() + pairX)
+                .putInt("pairx", position.getFloorX() + ((position.getFloorX() & 1) == 1 ? 1 : -1))
                 .putInt("pairz", position.getFloorZ());
     }
 }
