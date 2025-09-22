@@ -2,7 +2,6 @@ package me.iwareq.fakeinventories;
 
 import cn.nukkit.block.BlockID;
 import cn.nukkit.blockentity.BlockEntity;
-import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
@@ -10,11 +9,11 @@ import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.inventory.transaction.action.SlotChangeAction;
 import cn.nukkit.item.Item;
 import cn.nukkit.plugin.PluginBase;
+import lombok.Getter;
 import me.iwareq.fakeinventories.block.DoubleFakeBlock;
 import me.iwareq.fakeinventories.block.FakeBlock;
 import me.iwareq.fakeinventories.block.FakeBlockOffset;
 import me.iwareq.fakeinventories.block.SingleFakeBlock;
-import lombok.Getter;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -46,21 +45,19 @@ public class FakeInventories extends PluginBase implements Listener {
 
     @Override
     public void onEnable() {
-        this.getServer().getPluginManager().registerEvents(this, this);
+        this.getServer().getPluginManager().subscribeEvent(InventoryTransactionEvent.class, event -> {
+            event.getTransaction().getActions().forEach(action -> {
+                if (action instanceof SlotChangeAction slotChange) {
+                    if (slotChange.getInventory() instanceof FakeInventory inventory) {
+                        int slot = slotChange.getSlot();
+                        Item sourceItem = action.getSourceItem();
+                        inventory.handle(slot, sourceItem, event);
+                    }
+                }
+            });
+        }, EventPriority.MONITOR, this);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onInventoryTransaction(InventoryTransactionEvent event) {
-        event.getTransaction().getActions().forEach(action -> {
-            if (action instanceof SlotChangeAction slotChange) {
-                if (slotChange.getInventory() instanceof FakeInventory inventory) {
-                    int slot = slotChange.getSlot();
-                    Item sourceItem = action.getSourceItem();
-                    inventory.handle(slot, sourceItem, event);
-                }
-            }
-        });
-    }
     public static FakeBlock getFakeBlock(InventoryType inventoryType) {
         FakeBlock fakeBlock = FAKE_BLOCKS.get(inventoryType);
         if (fakeBlock == null) {
