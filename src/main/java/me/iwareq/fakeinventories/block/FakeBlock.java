@@ -7,14 +7,17 @@ import me.iwareq.fakeinventories.FakeInventories;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-public abstract class FakeBlock {
+public interface FakeBlock {
 
-    public abstract void create(Player player, String title);
+    void create(Player player, String title);
 
-    public abstract void remove(Player player);
+    void remove(Player player);
 
-    public List<Vector3> getPositions(Player player) {
+    Set<Vector3> getLastPositions(Player player);
+
+    default List<Vector3> getPlacePositions(Player player) {
         Vector3 position = player.getPosition().add(this.getOffset(player)).floor();
         DimensionData dimension = player.getLevel().getDimensionData();
         if (position.getFloorY() >= dimension.getMinHeight() && position.getFloorY() < dimension.getMaxHeight()) {
@@ -23,7 +26,7 @@ public abstract class FakeBlock {
         return Collections.emptyList();
     }
 
-    protected Vector3 getOffset(Player player) {
+    default Vector3 getOffset(Player player) {
         return FakeInventories.getFakeBlockOffset().getOffset(player);
     }
 }

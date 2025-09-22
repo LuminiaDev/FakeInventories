@@ -49,7 +49,7 @@ public class FakeInventory extends BaseInventory {
             packet.windowId = player.getWindowId(this);
             packet.type = this.getType().getNetworkType();
 
-            List<Vector3> positions = this.fakeBlock.getPositions(player);
+            List<Vector3> positions = this.fakeBlock.getPlacePositions(player);
             if (positions.isEmpty()) {
                 return;
             }
