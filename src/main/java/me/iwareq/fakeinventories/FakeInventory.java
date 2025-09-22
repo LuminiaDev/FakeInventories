@@ -2,7 +2,6 @@ package me.iwareq.fakeinventories;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.block.BlockID;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
 import cn.nukkit.inventory.BaseInventory;
 import cn.nukkit.inventory.InventoryType;
@@ -15,7 +14,8 @@ import lombok.Setter;
 import me.iwareq.fakeinventories.block.FakeBlock;
 import me.iwareq.fakeinventories.util.ItemHandler;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FakeInventory extends BaseInventory {
 
@@ -57,7 +57,7 @@ public class FakeInventory extends BaseInventory {
             super.onOpen(player);
 
             this.sendContents(player);
-        }, 5);
+        }, 2);
     }
 
     @Override
@@ -68,73 +68,7 @@ public class FakeInventory extends BaseInventory {
         player.dataPacket(packet);
 
         super.onClose(player);
-
-        Server.getInstance().getScheduler().scheduleDelayedTask(FakeInventories.getInstance(), () -> {
-            this.fakeBlock.remove(player);
-        }, 5);
-    }
-
-    public Item[] addItem(ItemHandler handler, Item... slots) {
-        List<Item> itemSlots = new ArrayList<>();
-        for (Item slot : slots) {
-            if (slot.getId() != 0 && slot.getCount() > 0) {
-                itemSlots.add(slot.clone());
-            }
-        }
-
-        List<Integer> emptySlots = new ArrayList<>();
-
-        for (int i = 0; i < this.getSize(); ++i) {
-            Item item = this.getItem(i);
-            if (item.getId() == BlockID.AIR || item.getCount() <= 0) {
-                emptySlots.add(i);
-            }
-
-            for (Item slot : Collections.unmodifiableList(itemSlots)) {
-                if (slot.equals(item) && item.getCount() < item.getMaxStackSize()) {
-                    int amount = Math.min(item.getMaxStackSize() - item.getCount(), slot.getCount());
-                    amount = Math.min(amount, this.getMaxStackSize());
-                    if (amount > 0) {
-                        slot.setCount(slot.getCount() - amount);
-                        item.setCount(item.getCount() + amount);
-
-                        this.setItem(i, item, handler);
-
-                        if (slot.getCount() <= 0) {
-                            itemSlots.remove(slot);
-                        }
-                    }
-                }
-            }
-
-            if (itemSlots.isEmpty()) {
-                break;
-            }
-        }
-
-        if (!itemSlots.isEmpty() && !emptySlots.isEmpty()) {
-            for (int slotIndex : emptySlots) {
-                if (!itemSlots.isEmpty()) {
-                    Item slot = itemSlots.get(0);
-
-                    int amount = Math.min(slot.getMaxStackSize(), slot.getCount());
-                    amount = Math.min(amount, this.getMaxStackSize());
-
-                    slot.setCount(slot.getCount() - amount);
-
-                    Item item = slot.clone();
-                    item.setCount(amount);
-
-                    this.setItem(slotIndex, item, handler);
-
-                    if (slot.getCount() <= 0) {
-                        itemSlots.remove(slot);
-                    }
-                }
-            }
-        }
-
-        return itemSlots.toArray(new Item[0]);
+        this.fakeBlock.remove(player);
     }
 
     public void setItem(int index, Item item, ItemHandler handler) {

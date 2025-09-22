@@ -31,7 +31,7 @@ public class SingleFakeBlock extends FakeBlock {
         positions.forEach(position -> {
             UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
             updateBlockPacket.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.blockId, 0);
-            updateBlockPacket.flags = UpdateBlockPacket.FLAG_ALL;
+            updateBlockPacket.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
             updateBlockPacket.x = position.getFloorX();
             updateBlockPacket.y = position.getFloorY();
             updateBlockPacket.z = position.getFloorZ();
@@ -56,7 +56,7 @@ public class SingleFakeBlock extends FakeBlock {
         this.lastPositions.forEach(position -> {
             UpdateBlockPacket packet = new UpdateBlockPacket();
             packet.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, player.getLevel().getBlock(position).getFullId());
-            packet.flags = UpdateBlockPacket.FLAG_ALL;
+            packet.flags = UpdateBlockPacket.FLAG_ALL_PRIORITY;
             packet.x = position.getFloorX();
             packet.y = position.getFloorY();
             packet.z = position.getFloorZ();
