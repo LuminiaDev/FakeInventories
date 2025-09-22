@@ -1,0 +1,5 @@
+# Fake block offset working mode
+# Available:
+#  STANDARD - Standard working mode
+#  GEYSER   - Geyser like offset mode
+fake-block-offset-mode: "GEYSER"

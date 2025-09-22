@@ -15,6 +15,7 @@ import me.iwareq.fakeinventories.block.FakeBlock;
 import me.iwareq.fakeinventories.util.ItemHandler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FakeInventory extends BaseInventory {
@@ -48,7 +49,12 @@ public class FakeInventory extends BaseInventory {
             packet.windowId = player.getWindowId(this);
             packet.type = this.getType().getNetworkType();
 
-            Vector3 position = this.fakeBlock.getPositions(player).get(0);
+            List<Vector3> positions = this.fakeBlock.getPositions(player);
+            if (positions.isEmpty()) {
+                return;
+            }
+
+            Vector3 position = positions.get(0);
             packet.x = position.getFloorX();
             packet.y = position.getFloorY();
             packet.z = position.getFloorZ();

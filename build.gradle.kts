@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.iwareq.fakeinventories"
-version = "1.1.9-MOT"
+version = "1.2.0-MOT"
 
 java {
     toolchain {
