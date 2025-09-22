@@ -4,7 +4,13 @@ plugins {
 }
 
 group = "me.iwareq.fakeinventories"
-version = "1.1.8"
+version = "1.1.8-MOT"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 repositories {
     mavenCentral()

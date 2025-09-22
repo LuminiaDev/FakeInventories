@@ -8,11 +8,13 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.BlockEntityDataPacket;
 import cn.nukkit.network.protocol.UpdateBlockPacket;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class SingleFakeBlock extends FakeBlock {
 
@@ -28,7 +30,7 @@ public class SingleFakeBlock extends FakeBlock {
 
         positions.forEach(position -> {
             UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
-            updateBlockPacket.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(this.blockId, 0);
+            updateBlockPacket.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.blockId, 0);
             updateBlockPacket.flags = UpdateBlockPacket.FLAG_ALL;
             updateBlockPacket.x = position.getFloorX();
             updateBlockPacket.y = position.getFloorY();
@@ -41,8 +43,8 @@ public class SingleFakeBlock extends FakeBlock {
             blockEntityDataPacket.z = position.getFloorZ();
             try {
                 blockEntityDataPacket.namedTag = NBTIO.write(this.getBlockEntityDataAt(position, title), ByteOrder.LITTLE_ENDIAN, true);
-            } catch (IOException exception) {
-                exception.printStackTrace();
+            } catch (IOException e) {
+                log.error("Failed to create an NBT for the block entity", e);
             }
 
             player.dataPacket(blockEntityDataPacket);
@@ -53,7 +55,7 @@ public class SingleFakeBlock extends FakeBlock {
     public void remove(Player player) {
         this.lastPositions.forEach(position -> {
             UpdateBlockPacket packet = new UpdateBlockPacket();
-            packet.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.getLevel().getBlock(position).getFullId());
+            packet.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, player.getLevel().getBlock(position).getFullId());
             packet.flags = UpdateBlockPacket.FLAG_ALL;
             packet.x = position.getFloorX();
             packet.y = position.getFloorY();
