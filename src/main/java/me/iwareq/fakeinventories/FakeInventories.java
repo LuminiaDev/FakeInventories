@@ -3,7 +3,6 @@ package me.iwareq.fakeinventories;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.event.EventPriority;
-import cn.nukkit.event.Listener;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
 import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.inventory.transaction.action.SlotChangeAction;
@@ -12,13 +11,14 @@ import cn.nukkit.plugin.PluginBase;
 import lombok.Getter;
 import me.iwareq.fakeinventories.block.DoubleFakeBlock;
 import me.iwareq.fakeinventories.block.FakeBlock;
-import me.iwareq.fakeinventories.block.FakeBlockOffset;
 import me.iwareq.fakeinventories.block.SingleFakeBlock;
+import me.iwareq.fakeinventories.block.offset.FakeBlockOffset;
+import me.iwareq.fakeinventories.block.offset.FakeBlockOffsets;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-public class FakeInventories extends PluginBase implements Listener {
+public class FakeInventories extends PluginBase {
 
     @Getter
     private static FakeInventories instance;
@@ -40,7 +40,7 @@ public class FakeInventories extends PluginBase implements Listener {
         FAKE_BLOCKS.put(InventoryType.DROPPER, new SingleFakeBlock(BlockID.DROPPER, InventoryType.DROPPER.getDefaultTitle()));
         FAKE_BLOCKS.put(InventoryType.HOPPER, new SingleFakeBlock(BlockID.HOPPER_BLOCK, BlockEntity.HOPPER));
         FAKE_BLOCKS.put(InventoryType.SHULKER_BOX, new SingleFakeBlock(BlockID.SHULKER_BOX, BlockEntity.SHULKER_BOX));
-        FAKE_BLOCK_OFFSET = FakeBlockOffset.valueOf(this.getConfig().getString("fake-block-offset-mode").toUpperCase());
+        FAKE_BLOCK_OFFSET = FakeBlockOffsets.valueOf(this.getConfig().getString("fake-block-offset-mode").toUpperCase());
     }
 
     @Override

@@ -12,6 +12,7 @@ import cn.nukkit.network.protocol.ContainerOpenPacket;
 import lombok.Getter;
 import lombok.Setter;
 import me.iwareq.fakeinventories.block.FakeBlock;
+import me.iwareq.fakeinventories.block.offset.FakeBlockOffset;
 import me.iwareq.fakeinventories.util.ItemHandler;
 import me.iwareq.fakeinventories.util.SimplePlayerHandler;
 
@@ -33,6 +34,7 @@ public class FakeInventory extends BaseInventory {
     private final Map<Integer, ItemHandler> handlers = new HashMap<>();
 
     private final FakeBlock fakeBlock;
+    private FakeBlockOffset fakeBlockOffset;
 
     public FakeInventory(InventoryType inventoryType) {
         this(inventoryType, null);
@@ -42,11 +44,12 @@ public class FakeInventory extends BaseInventory {
         super(null, inventoryType);
         this.title = title == null ? inventoryType.getDefaultTitle() : title;
         this.fakeBlock = FakeInventories.getFakeBlock(inventoryType);
+        this.fakeBlockOffset = FakeInventories.getFakeBlockOffset();
     }
 
     @Override
     public void onOpen(Player player) {
-        this.fakeBlock.create(player, this.getTitle());
+        this.fakeBlock.create(player, this.fakeBlockOffset.getOffset(player), this.getTitle());
 
         Server.getInstance().getScheduler().scheduleDelayedTask(FakeInventories.getInstance(), () -> {
             ContainerOpenPacket packet = new ContainerOpenPacket();

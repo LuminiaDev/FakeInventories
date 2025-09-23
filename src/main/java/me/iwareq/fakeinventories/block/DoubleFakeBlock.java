@@ -16,8 +16,8 @@ public class DoubleFakeBlock extends SingleFakeBlock {
     }
 
     @Override
-    public List<Vector3> getPlacePositions(Player player) {
-        Vector3 position = player.getPosition().add(this.getOffset(player)).floor();
+    public List<Vector3> getPlacePositions(Player player, Vector3 offset) {
+        Vector3 position = player.getPosition().add(this.correctOffset(offset)).floor();
         DimensionData dimension = player.getLevel().getDimensionData();
         if (position.getFloorY() >= dimension.getMinHeight() && position.getFloorY() < dimension.getMaxHeight()) {
             if ((position.getFloorX() & 1) == 1) {
@@ -28,9 +28,7 @@ public class DoubleFakeBlock extends SingleFakeBlock {
         return Collections.emptyList();
     }
 
-    @Override
-    public Vector3 getOffset(Player player) {
-        Vector3 offset = super.getOffset(player);
+    protected Vector3 correctOffset(Vector3 offset) {
         offset.x *= 1.5;
         offset.z *= 1.5;
         return offset;
