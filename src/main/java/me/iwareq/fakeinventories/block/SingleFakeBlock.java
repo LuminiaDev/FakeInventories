@@ -27,8 +27,8 @@ public class SingleFakeBlock implements FakeBlock {
     protected final Map<Player, Set<Vector3>> lastPositions = new Object2ObjectArrayMap<>();
 
     @Override
-    public void create(Player player, String title) {
-        this.createAndGetLastPositions(player).addAll(this.getPlacePositions(player));
+    public void create(Player player, Vector3 offset, String title) {
+        this.createAndGetLastPositions(player).addAll(this.getPlacePositions(player, offset));
         this.getLastPositions(player).forEach(position -> {
             UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
             updateBlockPacket.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.blockId, 0);
