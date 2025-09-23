@@ -13,19 +13,23 @@ import lombok.Getter;
 import lombok.Setter;
 import me.iwareq.fakeinventories.block.FakeBlock;
 import me.iwareq.fakeinventories.util.ItemHandler;
+import me.iwareq.fakeinventories.util.SimplePlayerHandler;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+@Setter
 public class FakeInventory extends BaseInventory {
 
     @Getter
     @Setter
     private String title;
 
-    @Setter
     private ItemHandler defaultItemHandler;
+    private SimplePlayerHandler openHandler;
+    private SimplePlayerHandler closeHandler;
+
     private final Map<Integer, ItemHandler> handlers = new HashMap<>();
 
     private final FakeBlock fakeBlock;
@@ -49,21 +53,24 @@ public class FakeInventory extends BaseInventory {
             packet.windowId = player.getWindowId(this);
             packet.type = this.getType().getNetworkType();
 
-            List<Vector3> positions = this.fakeBlock.getPlacePositions(player);
-            if (positions.isEmpty()) {
-                return;
+            Optional<Vector3> first = this.fakeBlock.getLastPositions(player).stream().findFirst();
+            if (first.isPresent()) {
+                Vector3 position = first.get();
+                packet.x = position.getFloorX();
+                packet.y = position.getFloorY();
+                packet.z = position.getFloorZ();
+                player.dataPacket(packet);
+
+                super.onOpen(player);
+                this.sendContents(player);
+            } else {
+                this.fakeBlock.remove(player);
             }
-
-            Vector3 position = positions.get(0);
-            packet.x = position.getFloorX();
-            packet.y = position.getFloorY();
-            packet.z = position.getFloorZ();
-            player.dataPacket(packet);
-
-            super.onOpen(player);
-
-            this.sendContents(player);
         }, 2);
+
+        if (this.openHandler != null) {
+            this.openHandler.handle(player);
+        }
     }
 
     @Override
@@ -75,12 +82,20 @@ public class FakeInventory extends BaseInventory {
 
         super.onClose(player);
         this.fakeBlock.remove(player);
+
+        if (this.closeHandler != null) {
+            this.closeHandler.handle(player);
+        }
     }
 
     public void setItem(int index, Item item, ItemHandler handler) {
         if (super.setItem(index, item)) {
             this.handlers.put(index, handler);
         }
+    }
+
+    public void setItemHandler(int index, ItemHandler handler) {
+        this.handlers.put(index, handler);
     }
 
     public void handle(int index, Item item, InventoryTransactionEvent event) {
