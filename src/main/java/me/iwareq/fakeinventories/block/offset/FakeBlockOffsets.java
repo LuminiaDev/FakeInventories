@@ -4,7 +4,13 @@ import cn.nukkit.Player;
 import cn.nukkit.math.Vector3;
 import me.iwareq.fakeinventories.util.InventoryUtils;
 
+/**
+ * Ready-made offsets for fake blocks.
+ */
 public enum FakeBlockOffsets implements FakeBlockOffset {
+    /**
+     * Standard block offset.
+     */
     STANDARD {
         @Override
         public Vector3 getOffset(Player player) {
@@ -15,6 +21,9 @@ public enum FakeBlockOffsets implements FakeBlockOffset {
             return offset;
         }
     },
+    /**
+     * Geyser-like block offset.
+     */
     GEYSER {
         @Override
         public Vector3 getOffset(Player player) {
