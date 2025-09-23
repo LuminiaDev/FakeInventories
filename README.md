@@ -11,19 +11,22 @@ your custom virtual inventories with ease.
 FakeInventory inventory = new FakeInventory(InventoryType.CHEST, "Custom inventory");
 
 inventory.setDefaultItemHandler((item, event) -> {
-    event.setCancelled(true);
+    event.setCancelled();
 
     Player target = event.getTransaction().getSource();
-    target.sendMessage("is default item handler");
+    target.sendMessage("This is default item handler");
 });
 
 inventory.setItem(5, Item.get(Item.DIAMOND), (item, event) -> {
-    event.setCancelled(true);
+    event.setCancelled();
 
     Player target = event.getTransaction().getSource();
-    target.sendMessage("is custom item handler");
+    target.sendMessage("This is custom item handler");
     target.removeWindow(inventory);
 });
+
+inventory.setOpenHandler(player -> player.sendMessage("You opened inventory"));
+inventory.setCloseHandler(player -> player.sendMessage("You closed inventory"));
 
 player.addWindow(inventory);
 ```
@@ -45,7 +48,7 @@ Adding dependency:
 <dependency>
     <groupId>com.luminiadev.fakeinventories</groupId>
     <artifactId>fakeinventories</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 </dependency>
 ```
 
@@ -60,5 +63,5 @@ maven {
 
 Adding dependency:
 ```kts
-compileOnly("com.luminiadev.fakeinventories:fakeinventories:1.2.0")
+compileOnly("com.luminiadev.fakeinventories:fakeinventories:1.2.1")
 ```

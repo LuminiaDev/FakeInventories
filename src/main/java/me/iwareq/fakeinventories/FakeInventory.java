@@ -13,20 +13,23 @@ import lombok.Getter;
 import lombok.Setter;
 import me.iwareq.fakeinventories.block.FakeBlock;
 import me.iwareq.fakeinventories.util.ItemHandler;
+import me.iwareq.fakeinventories.util.SimplePlayerHandler;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Setter
 public class FakeInventory extends BaseInventory {
 
     @Getter
     @Setter
     private String title;
 
-    @Setter
     private ItemHandler defaultItemHandler;
+    private SimplePlayerHandler openHandler;
+    private SimplePlayerHandler closeHandler;
+
     private final Map<Integer, ItemHandler> handlers = new HashMap<>();
 
     private final FakeBlock fakeBlock;
@@ -64,6 +67,10 @@ public class FakeInventory extends BaseInventory {
                 this.fakeBlock.remove(player);
             }
         }, 2);
+
+        if (this.openHandler != null) {
+            this.openHandler.handle(player);
+        }
     }
 
     @Override
@@ -75,12 +82,20 @@ public class FakeInventory extends BaseInventory {
 
         super.onClose(player);
         this.fakeBlock.remove(player);
+
+        if (this.closeHandler != null) {
+            this.closeHandler.handle(player);
+        }
     }
 
     public void setItem(int index, Item item, ItemHandler handler) {
         if (super.setItem(index, item)) {
             this.handlers.put(index, handler);
         }
+    }
+
+    public void setItemHandler(int index, ItemHandler handler) {
+        this.handlers.put(index, handler);
     }
 
     public void handle(int index, Item item, InventoryTransactionEvent event) {
