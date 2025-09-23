@@ -29,7 +29,7 @@ public class SingleFakeBlock implements FakeBlock {
     @Override
     public void create(Player player, String title) {
         this.createAndGetLastPositions(player).addAll(this.getPlacePositions(player));
-        this.getPlacePositions(player).forEach(position -> {
+        this.getLastPositions(player).forEach(position -> {
             UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
             updateBlockPacket.blockRuntimeId = GlobalBlockPalette.getOrCreateRuntimeId(player.protocol, this.blockId, 0);
             updateBlockPacket.flags = UpdateBlockPacket.FLAG_NETWORK;
@@ -66,21 +66,22 @@ public class SingleFakeBlock implements FakeBlock {
         this.lastPositions.remove(player);
     }
 
-    protected CompoundTag getBlockEntityDataAt(Vector3 position, String title) {
-        return BlockEntity.getDefaultCompound(position, title)
-                .putString("id", tileId)
-                .putBoolean("isMovable", true)
-                .putString("CustomName", title);
+    @Override
+    public Set<Vector3> getLastPositions(Player player) {
+        return lastPositions.getOrDefault(player, new HashSet<>());
     }
 
-    public Set<Vector3> createAndGetLastPositions(Player player) {
+    protected Set<Vector3> createAndGetLastPositions(Player player) {
         if (!lastPositions.containsKey(player)) {
             lastPositions.put(player, new HashSet<>());
         }
         return lastPositions.get(player);
     }
 
-    public Set<Vector3> getLastPositions(Player player) {
-        return lastPositions.getOrDefault(player, new HashSet<>());
+    protected CompoundTag getBlockEntityDataAt(Vector3 position, String title) {
+        return BlockEntity.getDefaultCompound(position, title)
+                .putString("id", tileId)
+                .putBoolean("isMovable", true)
+                .putString("CustomName", title);
     }
 }
