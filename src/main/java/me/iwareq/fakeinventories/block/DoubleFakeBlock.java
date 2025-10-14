@@ -1,7 +1,6 @@
 package me.iwareq.fakeinventories.block;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.BlockID;
 import cn.nukkit.level.DimensionData;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
@@ -20,11 +19,6 @@ public class DoubleFakeBlock extends SingleFakeBlock {
     public List<Vector3> getPlacePositions(Player player, Vector3 offset) {
         Vector3 position = player.getPosition().add(this.correctOffset(offset)).floor();
         DimensionData dimension = player.getLevel().getDimensionData();
-
-        if(player.getLevel().getBlockIdAt((int) position.x, (int) position.y, (int) position.z) != BlockID.AIR) {
-            position = position.add(this.correctOffset(offset.multiply(-2)));
-        }
-
         if (position.getFloorY() >= dimension.getMinHeight() && position.getFloorY() < dimension.getMaxHeight()) {
             if ((position.getFloorX() & 1) == 1) {
                 return Arrays.asList(position, position.east());
