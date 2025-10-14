@@ -1,6 +1,7 @@
 package me.iwareq.fakeinventories.block;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.BlockID;
 import cn.nukkit.level.DimensionData;
 import cn.nukkit.math.Vector3;
 
@@ -20,7 +21,10 @@ public interface FakeBlock {
         Vector3 position = player.getPosition().add(offset).floor();
         DimensionData dimension = player.getLevel().getDimensionData();
         if (position.getFloorY() >= dimension.getMinHeight() && position.getFloorY() < dimension.getMaxHeight()) {
-            return Collections.singletonList(position);
+            if(player.getLevel().getBlockIdAt((int) position.x, (int) position.y, (int) position.z) == BlockID.AIR) {
+                return Collections.singletonList(position);
+            }
+            return Collections.singletonList(position.add(offset.multiply(-2)));
         }
         return Collections.emptyList();
     }
