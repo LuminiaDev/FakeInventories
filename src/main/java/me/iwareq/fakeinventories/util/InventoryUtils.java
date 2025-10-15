@@ -23,18 +23,18 @@ public class InventoryUtils {
         // Offset above the player
         Vector3 offsetAbove = new Vector3(0, 2, 0);
         Vector3 posAbove = playerPos.add(offsetAbove);
-        if (posAbove.getY() >= minY && posAbove.getY() < maxY && canUseWorldSpace(level, posAbove)) {
+        if (posAbove.getY() >= minY && posAbove.getY() < maxY && level.getBlock(posAbove).isAir()) {
             return offsetAbove;
         }
 
-        // Offset 4 blocks below the player
-        Vector3 offsetBelow = new Vector3(0, -4, 0);
+        // Offset 1 block below the player
+        Vector3 offsetBelow = new Vector3(0, -1, 0);
         Vector3 posBelow = playerPos.add(offsetBelow);
         if (posBelow.getY() >= minY && posBelow.getY() < maxY && canUseWorldSpace(level, posBelow)) {
             return offsetBelow;
         }
 
-        return null;
+        return offsetAbove;
     }
 
     /**
