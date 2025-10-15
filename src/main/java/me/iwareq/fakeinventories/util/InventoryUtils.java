@@ -27,7 +27,7 @@ public class InventoryUtils {
             return offsetAbove;
         }
 
-        // Offset 4 blocks below the player
+        // Offset 1 block below the player
         Vector3 offsetBelow = new Vector3(0, -1, 0);
         Vector3 posBelow = playerPos.add(offsetBelow);
         if (posBelow.getY() >= minY && posBelow.getY() < maxY && canUseWorldSpace(level, posBelow)) {
