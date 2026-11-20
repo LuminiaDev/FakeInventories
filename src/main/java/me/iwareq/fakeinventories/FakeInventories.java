@@ -1,12 +1,14 @@
 package me.iwareq.fakeinventories;
 
+import cn.nukkit.Player;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.inventory.InventoryTransactionEvent;
+import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryType;
+import cn.nukkit.inventory.transaction.action.InventoryAction;
 import cn.nukkit.inventory.transaction.action.SlotChangeAction;
-import cn.nukkit.item.Item;
 import cn.nukkit.plugin.PluginBase;
 import lombok.Getter;
 import me.iwareq.fakeinventories.block.DoubleFakeBlock;
@@ -15,6 +17,9 @@ import me.iwareq.fakeinventories.block.SingleFakeBlock;
 import me.iwareq.fakeinventories.block.offset.FakeBlockOffset;
 import me.iwareq.fakeinventories.block.offset.FakeBlockOffsets;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -24,6 +29,7 @@ public class FakeInventories extends PluginBase {
     private static FakeInventories instance;
 
     private static final Map<InventoryType, FakeBlock> FAKE_BLOCKS = new EnumMap<>(InventoryType.class);
+    private static final MethodHandle INVENTORY_AUTHORITY = findInventoryAuthority();
     private static FakeBlockOffset FAKE_BLOCK_OFFSET;
 
     @Override
@@ -45,17 +51,66 @@ public class FakeInventories extends PluginBase {
 
     @Override
     public void onEnable() {
-        this.getServer().getPluginManager().subscribeEvent(InventoryTransactionEvent.class, event -> {
-            event.getTransaction().getActions().forEach(action -> {
-                if (action instanceof SlotChangeAction slotChange) {
-                    if (slotChange.getInventory() instanceof FakeInventory inventory) {
-                        int slot = slotChange.getSlot();
-                        Item sourceItem = action.getSourceItem();
-                        inventory.handle(slot, sourceItem, event);
-                    }
+        this.getServer().getPluginManager().subscribeEvent(
+                InventoryTransactionEvent.class, this::onInventoryTransaction, EventPriority.MONITOR, this);
+    }
+
+    private void onInventoryTransaction(InventoryTransactionEvent event) {
+        Player player = event.getTransaction().getSource();
+        boolean serverAuthoritative = isServerAuthoritative(player);
+        if (serverAuthoritative && event.isCancelled()) {
+            return;
+        }
+
+        Inventory topWindow = serverAuthoritative ? player.getTopWindow().orElse(null) : null;
+        var actions = event.getTransaction().getActions();
+        if (topWindow instanceof FakeInventory inventory) {
+            for (InventoryAction action : actions) {
+                if (action instanceof SlotChangeAction change && inventory.isProtectedItemInventory(change.getInventory())) {
+                    event.setCancelled();
+                    return;
                 }
-            });
-        }, EventPriority.MONITOR, this);
+            }
+        }
+
+        for (InventoryAction action : actions) {
+            if (!(action instanceof SlotChangeAction change) || !(change.getInventory() instanceof FakeInventory inventory)) {
+                continue;
+            }
+
+            int windowId = serverAuthoritative ? player.getWindowId(inventory) : -1;
+            if (serverAuthoritative && (inventory != topWindow || windowId == -1 || !inventory.getViewers().contains(player))) {
+                event.setCancelled();
+                return;
+            }
+
+            inventory.handle(change.getSlot(), action.getSourceItem(), event);
+            if (serverAuthoritative && (player.getWindowId(inventory) != windowId || !inventory.getViewers().contains(player))) {
+                event.setCancelled();
+                return;
+            }
+        }
+    }
+
+    static boolean isServerAuthoritative(Player player) {
+        if (INVENTORY_AUTHORITY == null) {
+            return false;
+        }
+        try {
+            return (boolean) INVENTORY_AUTHORITY.invokeExact(player);
+        } catch (Throwable e) {
+            throw new IllegalStateException("Unable to read the inventory authority mode", e);
+        }
+    }
+
+    // Older Lumi builds only support CAI and lack the authority accessor.
+    private static MethodHandle findInventoryAuthority() {
+        try {
+            return MethodHandles.publicLookup().findVirtual(Player.class, "isInventoryServerAuthoritative",
+                    MethodType.methodType(boolean.class));
+        } catch (NoSuchMethodException | IllegalAccessException ignored) {
+            return null;
+        }
     }
 
     public static FakeBlock getFakeBlock(InventoryType inventoryType) {
